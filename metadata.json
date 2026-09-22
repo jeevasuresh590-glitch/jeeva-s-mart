@@ -1,0 +1,6 @@
+{
+  "name": "JeevaMart",
+  "description": "Smart Shopping. Simple. Secure. Full-stack e-commerce marketplace with Buyer, Seller, and Admin portals.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Shopping Cart | JeevaMart — Smart Shopping. Simple. Secure.</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- Demo Top Bar -->
+  <div class="demo-banner">
+    <div class="demo-banner-left">
+      <span class="demo-banner-badge">B.Tech IT Project</span>
+      <span>JeevaMart Real-time Cart Management</span>
+    </div>
+    <div class="demo-banner-links">
+      <a href="products.html" class="demo-chip">Continue Shopping</a>
+      <a href="checkout.html" class="demo-chip">Proceed to Checkout</a>
+    </div>
+  </div>
+
+  <!-- Primary Header -->
+  <header class="navbar">
+    <div class="nav-container">
+      <a href="index.html" class="nav-brand">
+        JeevaMart<span class="brand-accent">.</span>
+      </a>
+
+      <div class="nav-actions">
+        <a href="products.html" class="nav-btn">🛍️ Products</a>
+        <a href="orders.html" class="nav-btn">📦 Orders</a>
+        <div id="navAuthArea"></div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Cart Section -->
+  <main class="main-content">
+    <div style="margin-bottom: 24px;">
+      <h1 style="font-size: 24px; font-weight: 800;">My Shopping Cart</h1>
+      <p style="font-size: 13px; color: var(--text-muted);">Review items, update quantities, and proceed to secure checkout</p>
+    </div>
+
+    <div id="cartContainer">
+      <div style="text-align: center; padding: 60px;">
+        <p>Loading your cart items...</p>
+      </div>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-bottom">
+      <div>© 2026 JeevaMart. All rights reserved. B.Tech IT Engineering Major Project.</div>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+  <script>
+    async function renderCartPage() {
+      const container = document.getElementById('cartContainer');
+      if (!Auth.isLoggedIn()) {
+        container.innerHTML = `
+          <div class="empty-state">
+            <div class="empty-icon">🔐</div>
+            <h3 class="empty-title">Please login to view your cart</h3>
+            <p class="empty-desc">Your cart items are saved to your account so you can access them across devices.</p>
+            <a href="login.html" class="btn-block-primary" style="display:inline-block; width:auto; padding: 12px 32px;">Sign In to JeevaMart</a>
+          </div>
+        `;
+        return;
+      }
+
+      try {
+        const res = await apiRequest('/cart');
+        const cart = res.data;
+
+        if (!cart || !cart.items || cart.items.length === 0) {
+          container.innerHTML = `
+            <div class="empty-state">
+              <div class="empty-icon">🛒</div>
+              <h3 class="empty-title">Your shopping cart is empty!</h3>
+              <p class="empty-desc">Explore thousands of products with unbeatable discounts and free delivery.</p>
+              <a href="products.html" class="btn-accent" style="display:inline-flex;">Start Shopping Now</a>
+            </div>
+          `;
+          return;
+        }
+
+        container.innerHTML = `
+          <div class="cart-layout">
+            <!-- Left Items List -->
+            <div class="cart-items-card">
+              <div style="display:flex; justify-content:space-between; align-items:center; border-bottom: 1px solid var(--border-light); padding-bottom: 12px; margin-bottom: 12px;">
+                <h3 style="font-size: 16px; font-weight: 700;">Cart Items (${cart.items.length})</h3>
+                <button onclick="clearAllCart()" style="background:none; border:none; color:var(--danger); font-size:12px; font-weight:600; cursor:pointer;">Clear Cart</button>
+              </div>
+
+              ${cart.items.map(item => `
+                <div class="cart-item-row">
+                  <img src="${item.product.imageUrl}" alt="${item.product.name}" class="cart-item-img" />
+                  <div>
+                    <h4 style="font-size: 14px; font-weight: 700; margin-bottom: 4px;">${item.product.name}</h4>
+                    <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 6px;">Category: ${item.product.category}</div>
+                    <div style="display:flex; align-items:center; gap: 8px;">
+                      <span style="font-size: 15px; font-weight: 700;">${formatCurrency(item.product.priceCents)}</span>
+                      <span style="font-size: 12px; color: var(--text-muted);">each</span>
+                    </div>
+                  </div>
+                  <div style="text-align: right;">
+                    <div class="qty-control" style="margin-bottom: 8px;">
+                      <button class="qty-btn" onclick="updateCartItemQuantity(${item.productId}, ${item.quantity - 1})">-</button>
+                      <span class="qty-value">${item.quantity}</span>
+                      <button class="qty-btn" onclick="updateCartItemQuantity(${item.productId}, ${item.quantity + 1})" ${item.quantity >= item.product.stockQty ? 'disabled' : ''}>+</button>
+                    </div>
+                    <div style="font-size: 14px; font-weight: 700; color: var(--text-main); margin-bottom: 6px;">
+                      Subtotal: ${formatCurrency(item.subtotalCents)}
+                    </div>
+                    <button onclick="removeFromCart(${item.productId})" style="background:none; border:none; color: var(--danger); font-size: 12px; cursor: pointer;">
+                      Remove
+                    </button>
+                  </div>
+                </div>
+              `).join('')}
+            </div>
+
+            <!-- Right Summary Card -->
+            <div class="cart-summary-card">
+              <h3 style="font-size: 16px; font-weight: 700; margin-bottom: 16px; border-bottom: 1px solid var(--border-light); padding-bottom: 12px;">Price Details</h3>
+              
+              <div class="summary-row">
+                <span>Price (${cart.items.length} items)</span>
+                <span>${formatCurrency(cart.subtotalCents)}</span>
+              </div>
+              <div class="summary-row">
+                <span>Discount Applied</span>
+                <span style="color: var(--success); font-weight: 600;">-${formatCurrency(cart.discountCents)}</span>
+              </div>
+              <div class="summary-row">
+                <span>Delivery Charges</span>
+                <span>${cart.deliveryCents === 0 ? '<strong style="color: var(--success);">FREE</strong>' : formatCurrency(cart.deliveryCents)}</span>
+              </div>
+
+              <div class="summary-row total-row">
+                <span>Total Amount</span>
+                <span style="color: var(--primary);">${formatCurrency(cart.grandTotalCents)}</span>
+              </div>
+
+              <p style="font-size: 12px; color: var(--success); font-weight: 600; margin-top: 10px; margin-bottom: 20px;">
+                You will save ${formatCurrency(cart.discountCents)} on this order!
+              </p>
+
+              <a href="checkout.html" class="btn-block-primary" style="display: block; text-align: center; text-decoration: none; padding: 13px;">
+                Proceed to Checkout
+              </a>
+              
+              <div style="display: flex; align-items: center; justify-content: center; gap: 6px; margin-top: 16px; font-size: 12px; color: var(--text-muted);">
+                <span>🛡️</span> Safe and Secure Payments Guarantee
+              </div>
+            </div>
+          </div>
+        `;
+      } catch (err) {
+        container.innerHTML = `<div class="empty-state"><p style="color:red;">${err.message}</p></div>`;
+      }
+    }
+
+    async function clearAllCart() {
+      if (!confirm('Are you sure you want to clear your entire cart?')) return;
+      try {
+        await apiRequest('/cart', { method: 'DELETE' });
+        showToast('Cart cleared.', 'info');
+        renderCartPage();
+        updateCartCountBadge();
+      } catch (err) {
+        showToast(err.message || 'Could not clear cart', 'error');
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      renderCartPage();
+    });
+  </script>
+</body>
+</html>

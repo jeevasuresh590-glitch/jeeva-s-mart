@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>My Orders | JeevaMart — Smart Shopping. Simple. Secure.</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- Demo Top Bar -->
+  <div class="demo-banner">
+    <div class="demo-banner-left">
+      <span class="demo-banner-badge">B.Tech IT Project</span>
+      <span>JeevaMart Real-time Order Tracking</span>
+    </div>
+    <div class="demo-banner-links">
+      <a href="products.html" class="demo-chip">Shop More</a>
+      <a href="cart.html" class="demo-chip">Cart</a>
+    </div>
+  </div>
+
+  <!-- Primary Header -->
+  <header class="navbar">
+    <div class="nav-container">
+      <a href="index.html" class="nav-brand">
+        JeevaMart<span class="brand-accent">.</span>
+      </a>
+      <div class="nav-actions">
+        <a href="products.html" class="nav-btn">🛍️ Products</a>
+        <a href="cart.html" class="nav-btn" style="position:relative;">
+          <span>🛒 Cart</span>
+          <span id="navCartCount" class="cart-badge" style="display:none;">0</span>
+        </a>
+        <div id="navAuthArea"></div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Orders Content -->
+  <main class="main-content">
+    <div style="margin-bottom: 24px;">
+      <h1 style="font-size: 24px; font-weight: 800;">My Orders & Purchases</h1>
+      <p style="font-size: 13px; color: var(--text-muted);">Track current delivery progress and review past orders</p>
+    </div>
+
+    <div id="ordersContainer">
+      <div style="text-align: center; padding: 60px;">
+        <p>Loading your orders...</p>
+      </div>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-bottom">
+      <div>© 2026 JeevaMart. All rights reserved. B.Tech IT Engineering Major Project.</div>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+  <script>
+    async function loadOrders() {
+      const container = document.getElementById('ordersContainer');
+      if (!Auth.isLoggedIn()) {
+        container.innerHTML = `
+          <div class="empty-state">
+            <div class="empty-icon">🔐</div>
+            <h3 class="empty-title">Please login to view your orders</h3>
+            <p class="empty-desc">Sign in to check the status of your packages and track deliveries.</p>
+            <a href="login.html" class="btn-block-primary" style="display:inline-block; width:auto; padding: 12px 32px;">Sign In to JeevaMart</a>
+          </div>
+        `;
+        return;
+      }
+
+      try {
+        const res = await apiRequest('/orders');
+        const orders = res.data;
+
+        if (!orders || orders.length === 0) {
+          container.innerHTML = `
+            <div class="empty-state">
+              <div class="empty-icon">📦</div>
+              <h3 class="empty-title">No orders found</h3>
+              <p class="empty-desc">You haven't placed any orders on JeevaMart yet. Start exploring our deals today!</p>
+              <a href="products.html" class="btn-accent" style="display:inline-flex;">Shop Now</a>
+            </div>
+          `;
+          return;
+        }
+
+        container.innerHTML = `
+          <div style="display: flex; flex-direction: column; gap: 20px;">
+            ${orders.map(order => {
+              let statusColor = '#f59e0b';
+              if (order.status === 'CONFIRMED') statusColor = '#3b82f6';
+              if (order.status === 'SHIPPED') statusColor = '#8b5cf6';
+              if (order.status === 'DELIVERED') statusColor = '#10b981';
+              if (order.status === 'CANCELLED') statusColor = '#ef4444';
+
+              return `
+                <div style="background: white; border-radius: 8px; border: 1px solid var(--border-light); box-shadow: var(--shadow-sm); overflow: hidden;">
+                  <!-- Order Header -->
+                  <div style="background: #f8fafc; padding: 16px 20px; border-bottom: 1px solid var(--border-light); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+                    <div>
+                      <div style="font-size: 11px; text-transform: uppercase; color: var(--text-muted); font-weight: 700;">Order ID</div>
+                      <div style="font-size: 15px; font-weight: 700; color: var(--text-main);">#JM-${order.id}</div>
+                    </div>
+                    <div>
+                      <div style="font-size: 11px; text-transform: uppercase; color: var(--text-muted); font-weight: 700;">Date Placed</div>
+                      <div style="font-size: 13px; font-weight: 600;">${new Date(order.createdAt).toLocaleString()}</div>
+                    </div>
+                    <div>
+                      <div style="font-size: 11px; text-transform: uppercase; color: var(--text-muted); font-weight: 700;">Total Amount</div>
+                      <div style="font-size: 15px; font-weight: 700; color: var(--primary);">${formatCurrency(order.totalAmountCents)}</div>
+                    </div>
+                    <div>
+                      <div style="font-size: 11px; text-transform: uppercase; color: var(--text-muted); font-weight: 700;">Status</div>
+                      <span style="display: inline-block; background: ${statusColor}15; color: ${statusColor}; border: 1px solid ${statusColor}40; padding: 3px 10px; border-radius: 4px; font-weight: 700; font-size: 12px;">
+                        ● ${order.status}
+                      </span>
+                    </div>
+                  </div>
+
+                  <!-- Order Items & Details -->
+                  <div style="padding: 20px;">
+                    <div style="display: grid; grid-template-columns: 1fr 300px; gap: 24px;">
+                      <!-- Items -->
+                      <div>
+                        <h4 style="font-size: 13px; text-transform: uppercase; color: var(--text-muted); font-weight: 700; margin-bottom: 12px;">Purchased Items</h4>
+                        <div style="display: flex; flex-direction: column; gap: 12px;">
+                          ${(order.items || []).map(it => `
+                            <div style="display: flex; gap: 14px; align-items: center; padding-bottom: 10px; border-bottom: 1px solid #f1f5f9;">
+                              <img src="${it.productImageUrl || 'https://placehold.co/80x80'}" style="width: 56px; height: 56px; object-fit: cover; border-radius: 6px;" />
+                              <div style="flex:1;">
+                                <h5 style="font-size: 14px; font-weight: 600; margin-bottom: 2px;">${it.productName}</h5>
+                                <div style="font-size: 12px; color: var(--text-muted);">
+                                  Qty: ${it.quantity} × ${formatCurrency(it.priceCents)}
+                                </div>
+                              </div>
+                              <div style="font-weight: 700; font-size: 14px;">
+                                ${formatCurrency(it.subtotalCents)}
+                              </div>
+                            </div>
+                          `).join('')}
+                        </div>
+                      </div>
+
+                      <!-- Shipping & Payment Details -->
+                      <div style="background: #f8fafc; padding: 16px; border-radius: 6px; font-size: 13px;">
+                        <h4 style="font-size: 13px; font-weight: 700; margin-bottom: 8px;">Delivery Details</h4>
+                        <p style="font-weight: 600; color: var(--text-main); margin-bottom: 4px;">${order.shippingName}</p>
+                        <p style="color: #64748b; line-height: 1.4; margin-bottom: 6px;">
+                          ${order.shippingAddress}, ${order.shippingCity}, ${order.shippingState} - ${order.shippingPincode}
+                        </p>
+                        <p style="color: #64748b; margin-bottom: 12px;">Phone: ${order.shippingPhone}</p>
+
+                        <div style="border-top: 1px solid #e2e8f0; padding-top: 10px;">
+                          <div style="display:flex; justify-content:space-between; margin-bottom: 4px;">
+                            <span>Payment Method:</span>
+                            <strong>${order.paymentMethod}</strong>
+                          </div>
+                          <div style="display:flex; justify-content:space-between;">
+                            <span>Payment Status:</span>
+                            <span style="color: var(--success); font-weight: 600;">${order.paymentStatus}</span>
+                          </div>
+                        </div>
+
+                        ${order.status === 'PENDING' ? `
+                          <div style="margin-top: 14px; border-top: 1px solid #e2e8f0; padding-top: 10px;">
+                            <button onclick="cancelOrder(${order.id})" style="width: 100%; background: #fee2e2; color: #dc2626; border: 1px solid #fecaca; border-radius: 4px; padding: 8px; font-weight: 600; cursor: pointer;">
+                              Cancel Order
+                            </button>
+                          </div>
+                        ` : ''}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              `;
+            }).join('')}
+          </div>
+        `;
+      } catch (err) {
+        container.innerHTML = `<div class="empty-state"><p style="color:red;">${err.message}</p></div>`;
+      }
+    }
+
+    async function cancelOrder(orderId) {
+      if (!confirm(`Are you sure you want to cancel order #JM-${orderId}?`)) return;
+      try {
+        const res = await apiRequest(`/orders/${orderId}/status`, {
+          method: 'PUT',
+          body: JSON.stringify({ status: 'CANCELLED' })
+        });
+        if (res.success) {
+          showToast(`Order #JM-${orderId} has been cancelled.`, 'info');
+          loadOrders();
+        }
+      } catch (err) {
+        showToast(err.message || 'Could not cancel order', 'error');
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      loadOrders();
+    });
+  </script>
+</body>
+</html>

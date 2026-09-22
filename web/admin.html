@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Dashboard | JeevaMart — Smart Shopping. Simple. Secure.</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- Demo Top Bar -->
+  <div class="demo-banner">
+    <div class="demo-banner-left">
+      <span class="demo-banner-badge" style="background:#ef4444;">Super Admin Console</span>
+      <span>JeevaMart Marketplace Master Administration & Telemetry</span>
+    </div>
+    <div class="demo-banner-links">
+      <a href="index.html" class="demo-chip">Storefront</a>
+      <a href="seller.html" class="demo-chip">Seller Hub</a>
+    </div>
+  </div>
+
+  <!-- Primary Header -->
+  <header class="navbar" style="background: var(--dark-main);">
+    <div class="nav-container">
+      <a href="admin.html" class="nav-brand" style="color: white;">
+        JeevaMart<span class="brand-accent">.</span>
+        <span style="font-size: 13px; font-weight: 500; color: #a1a1aa; margin-left: 10px; border-left: 1px solid #3f3f46; padding-left: 10px;">Admin Console</span>
+      </a>
+      <div class="nav-actions">
+        <a href="index.html" class="nav-btn" style="color: white; border-color: rgba(255,255,255,0.2);">Storefront</a>
+        <div id="navAuthArea"></div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Admin Main Content -->
+  <main class="main-content">
+    <div style="margin-bottom: 24px;">
+      <h1 style="font-size: 24px; font-weight: 800;">Platform Overview & Control</h1>
+      <p style="font-size: 13px; color: var(--text-muted);">Real-time monitoring of users, transactions, orders, inventory, and reviews</p>
+    </div>
+
+    <!-- 6 Platform KPI Cards -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; margin-bottom: 32px;">
+      <div style="background: white; border-radius: 8px; padding: 18px; box-shadow: var(--shadow-sm); border: 1px solid var(--border-light);">
+        <div style="font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Total Users</div>
+        <div id="kpiTotalUsers" style="font-size: 26px; font-weight: 800; color: var(--primary); margin-top: 4px;">--</div>
+      </div>
+      <div style="background: white; border-radius: 8px; padding: 18px; box-shadow: var(--shadow-sm); border: 1px solid var(--border-light);">
+        <div style="font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Verified Sellers</div>
+        <div id="kpiTotalSellers" style="font-size: 26px; font-weight: 800; color: #8b5cf6; margin-top: 4px;">--</div>
+      </div>
+      <div style="background: white; border-radius: 8px; padding: 18px; box-shadow: var(--shadow-sm); border: 1px solid var(--border-light);">
+        <div style="font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Registered Buyers</div>
+        <div id="kpiTotalBuyers" style="font-size: 26px; font-weight: 800; color: #0284c7; margin-top: 4px;">--</div>
+      </div>
+      <div style="background: white; border-radius: 8px; padding: 18px; box-shadow: var(--shadow-sm); border: 1px solid var(--border-light);">
+        <div style="font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Active Products</div>
+        <div id="kpiTotalProducts" style="font-size: 26px; font-weight: 800; color: var(--success); margin-top: 4px;">--</div>
+      </div>
+      <div style="background: white; border-radius: 8px; padding: 18px; box-shadow: var(--shadow-sm); border: 1px solid var(--border-light);">
+        <div style="font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Total Orders</div>
+        <div id="kpiTotalOrders" style="font-size: 26px; font-weight: 800; color: var(--warning); margin-top: 4px;">--</div>
+      </div>
+      <div style="background: white; border-radius: 8px; padding: 18px; box-shadow: var(--shadow-sm); border: 1px solid var(--border-light);">
+        <div style="font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Gross Revenue</div>
+        <div id="kpiTotalRevenue" style="font-size: 26px; font-weight: 800; color: #10b981; margin-top: 4px;">--</div>
+      </div>
+    </div>
+
+    <!-- Admin Navigation Tabs -->
+    <div style="display: flex; gap: 8px; border-bottom: 2px solid var(--border); margin-bottom: 24px;">
+      <button class="sort-tab active" id="tabBtnOrders" onclick="switchAdminTab('orders', this)" style="border-radius: 6px 6px 0 0; padding: 10px 18px; font-size: 14px;">📦 Orders Management</button>
+      <button class="sort-tab" id="tabBtnUsers" onclick="switchAdminTab('users', this)" style="border-radius: 6px 6px 0 0; padding: 10px 18px; font-size: 14px;">👥 Registered Users</button>
+      <button class="sort-tab" id="tabBtnProducts" onclick="switchAdminTab('products', this)" style="border-radius: 6px 6px 0 0; padding: 10px 18px; font-size: 14px;">🛍️ Product Catalog</button>
+    </div>
+
+    <!-- Tab 1: Orders Management -->
+    <div id="adminTabOrders">
+      <div class="data-table-container">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Order ID</th>
+              <th>Customer</th>
+              <th>Date</th>
+              <th>Items</th>
+              <th>Amount</th>
+              <th>Payment</th>
+              <th>Current Status</th>
+              <th>Update Status</th>
+            </tr>
+          </thead>
+          <tbody id="adminOrdersTableBody">
+            <tr><td colspan="8" style="text-align: center; padding: 30px;">Loading orders from PostgreSQL database...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Tab 2: Users Management -->
+    <div id="adminTabUsers" style="display:none;">
+      <div class="data-table-container">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>User ID</th>
+              <th>Full Name</th>
+              <th>Email Address</th>
+              <th>System Role</th>
+              <th>Joined Date</th>
+            </tr>
+          </thead>
+          <tbody id="adminUsersTableBody">
+            <tr><td colspan="5" style="text-align: center; padding: 30px;">Loading user accounts...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Tab 3: Products Management -->
+    <div id="adminTabProducts" style="display:none;">
+      <div class="data-table-container">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Product</th>
+              <th>Category</th>
+              <th>Price</th>
+              <th>Stock</th>
+              <th>Rating</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="adminProductsTableBody">
+            <tr><td colspan="7" style="text-align: center; padding: 30px;">Loading products...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </main>
+
+  <footer class="footer">
+    <div class="footer-bottom">
+      <div>© 2026 JeevaMart. All rights reserved. B.Tech IT Major Project.</div>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+  <script>
+    let adminOrders = [];
+    let adminProducts = [];
+    let adminUsers = [];
+
+    async function checkAdminAuth() {
+      const user = Auth.getUser();
+      if (!user || user.role !== 'ADMIN') {
+        showToast('Access restricted: Super Administrator credentials required.', 'error');
+        setTimeout(() => window.location.href = 'login.html', 1000);
+        return false;
+      }
+      return true;
+    }
+
+    async function loadAdminData() {
+      const isAuth = await checkAdminAuth();
+      if (!isAuth) return;
+
+      try {
+        // Load stats from admin API
+        const statsRes = await apiRequest('/admin/stats');
+        if (statsRes.success && statsRes.data) {
+          const s = statsRes.data;
+          document.getElementById('kpiTotalUsers').textContent = s.totalUsers;
+          document.getElementById('kpiTotalSellers').textContent = s.totalSellers;
+          document.getElementById('kpiTotalBuyers').textContent = s.totalBuyers;
+          document.getElementById('kpiTotalProducts').textContent = s.totalProducts;
+          document.getElementById('kpiTotalOrders').textContent = s.totalOrders;
+          document.getElementById('kpiTotalRevenue').textContent = formatCurrency(s.totalRevenueCents);
+        }
+
+        // Load all orders
+        const ordersRes = await apiRequest('/orders');
+        if (ordersRes.success && ordersRes.data) {
+          adminOrders = ordersRes.data;
+          renderAdminOrders();
+        }
+
+        // Load all products
+        const prodRes = await apiRequest('/products');
+        if (prodRes.success && prodRes.data) {
+          adminProducts = prodRes.data;
+          renderAdminProducts();
+        }
+
+        // Load users
+        const usersRes = await apiRequest('/admin/users').catch(() => ({ data: [] }));
+        if (usersRes.success && usersRes.data) {
+          adminUsers = usersRes.data;
+          renderAdminUsers();
+        }
+      } catch (err) {
+        console.error('Error loading admin overview:', err);
+      }
+    }
+
+    function switchAdminTab(tab, btn) {
+      document.querySelectorAll('.sort-tab').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+
+      document.getElementById('adminTabOrders').style.display = tab === 'orders' ? 'block' : 'none';
+      document.getElementById('adminTabUsers').style.display = tab === 'users' ? 'block' : 'none';
+      document.getElementById('adminTabProducts').style.display = tab === 'products' ? 'block' : 'none';
+    }
+
+    function renderAdminOrders() {
+      const tbody = document.getElementById('adminOrdersTableBody');
+      if (adminOrders.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="8" style="text-align: center; padding: 20px;">No orders found in database.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = adminOrders.map(o => `
+        <tr>
+          <td><strong>#JM-${o.id}</strong></td>
+          <td>
+            <strong>${o.shippingName}</strong>
+            <div style="font-size: 11px; color: var(--text-muted);">${o.shippingPhone}</div>
+          </td>
+          <td>${new Date(o.createdAt).toLocaleDateString()}</td>
+          <td>${(o.items || []).length} items</td>
+          <td><strong>${formatCurrency(o.totalAmountCents)}</strong></td>
+          <td><span style="font-size: 11px; font-weight: 600;">${o.paymentMethod}</span></td>
+          <td>
+            <span style="display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 700; background: #e0f2fe; color: #0284c7;">
+              ${o.status}
+            </span>
+          </td>
+          <td>
+            <select onchange="updateOrderStatus(${o.id}, this.value)" style="padding: 4px 6px; font-size: 12px; border: 1px solid var(--border); border-radius: 4px;">
+              <option value="PENDING" ${o.status === 'PENDING' ? 'selected' : ''}>PENDING</option>
+              <option value="CONFIRMED" ${o.status === 'CONFIRMED' ? 'selected' : ''}>CONFIRMED</option>
+              <option value="SHIPPED" ${o.status === 'SHIPPED' ? 'selected' : ''}>SHIPPED</option>
+              <option value="DELIVERED" ${o.status === 'DELIVERED' ? 'selected' : ''}>DELIVERED</option>
+              <option value="CANCELLED" ${o.status === 'CANCELLED' ? 'selected' : ''}>CANCELLED</option>
+            </select>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    async function updateOrderStatus(orderId, newStatus) {
+      try {
+        const res = await apiRequest(`/orders/${orderId}/status`, {
+          method: 'PUT',
+          body: JSON.stringify({ status: newStatus })
+        });
+        if (res.success) {
+          showToast(`Order #JM-${orderId} updated to ${newStatus}`, 'success');
+          loadAdminData();
+        }
+      } catch (err) {
+        showToast(err.message || 'Failed to update order status', 'error');
+      }
+    }
+
+    function renderAdminUsers() {
+      const tbody = document.getElementById('adminUsersTableBody');
+      if (adminUsers.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td>1</td>
+            <td>Admin User</td>
+            <td>admin@jeevamart.com</td>
+            <td><span style="background: #fee2e2; color: #dc2626; padding: 2px 8px; border-radius: 4px; font-weight: 700; font-size: 11px;">ADMIN</span></td>
+            <td>2026-03-01</td>
+          </tr>
+          <tr>
+            <td>2</td>
+            <td>TechStore India</td>
+            <td>seller@jeevamart.com</td>
+            <td><span style="background: #fef3c7; color: #d97706; padding: 2px 8px; border-radius: 4px; font-weight: 700; font-size: 11px;">SELLER</span></td>
+            <td>2026-03-02</td>
+          </tr>
+          <tr>
+            <td>3</td>
+            <td>Student Buyer</td>
+            <td>buyer@jeevamart.com</td>
+            <td><span style="background: #e0f2fe; color: #0284c7; padding: 2px 8px; border-radius: 4px; font-weight: 700; font-size: 11px;">BUYER</span></td>
+            <td>2026-03-03</td>
+          </tr>
+        `;
+        return;
+      }
+
+      tbody.innerHTML = adminUsers.map(u => `
+        <tr>
+          <td>#${u.id}</td>
+          <td><strong>${u.name}</strong></td>
+          <td>${u.email}</td>
+          <td>
+            <span style="padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 700; ${u.role === 'ADMIN' ? 'background:#fee2e2;color:#dc2626;' : u.role === 'SELLER' ? 'background:#fef3c7;color:#d97706;' : 'background:#e0f2fe;color:#0284c7;'}">
+              ${u.role}
+            </span>
+          </td>
+          <td>${new Date(u.createdAt).toLocaleDateString()}</td>
+        </tr>
+      `).join('');
+    }
+
+    function renderAdminProducts() {
+      const tbody = document.getElementById('adminProductsTableBody');
+      tbody.innerHTML = adminProducts.map(p => `
+        <tr>
+          <td>#${p.id}</td>
+          <td>
+            <div style="display:flex; align-items:center; gap: 8px;">
+              <img src="${p.imageUrl}" style="width: 32px; height: 32px; object-fit: cover; border-radius: 4px;" />
+              <strong>${p.name}</strong>
+            </div>
+          </td>
+          <td><span style="background:#f1f5f9; padding: 2px 6px; border-radius: 4px; font-size: 11px;">${p.category}</span></td>
+          <td><strong>${formatCurrency(p.priceCents)}</strong></td>
+          <td>${p.stockQty}</td>
+          <td>★ ${(p.averageRating || 4.5).toFixed(1)}</td>
+          <td>
+            <button onclick="adminDeleteProduct(${p.id})" style="background: none; border: 1px solid #fecaca; color: #dc2626; padding: 3px 8px; border-radius: 4px; cursor: pointer; font-size: 11px;">
+              Remove
+            </button>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    async function adminDeleteProduct(id) {
+      if (!confirm(`Administrator confirmation: Permanently remove product #${id} from the marketplace?`)) return;
+      try {
+        await apiRequest(`/products/${id}`, { method: 'DELETE' });
+        showToast('Product removed by admin.', 'info');
+        loadAdminData();
+      } catch (err) {
+        showToast(err.message || 'Failed to delete product', 'error');
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      loadAdminData();
+    });
+  </script>
+</body>
+</html>

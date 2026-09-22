@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Checkout | JeevaMart — Smart Shopping. Simple. Secure.</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- Demo Top Bar -->
+  <div class="demo-banner">
+    <div class="demo-banner-left">
+      <span class="demo-banner-badge">B.Tech IT Project</span>
+      <span>JeevaMart Transactional Checkout & Mock Payment Flow</span>
+    </div>
+    <div class="demo-banner-links">
+      <a href="cart.html" class="demo-chip">Back to Cart</a>
+      <a href="orders.html" class="demo-chip">Order History</a>
+    </div>
+  </div>
+
+  <!-- Primary Header -->
+  <header class="navbar">
+    <div class="nav-container">
+      <a href="index.html" class="nav-brand">
+        JeevaMart<span class="brand-accent">.</span>
+      </a>
+      <div class="nav-actions">
+        <div id="navAuthArea"></div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Checkout Container -->
+  <main class="main-content">
+    <div style="margin-bottom: 24px;">
+      <h1 style="font-size: 24px; font-weight: 800;">Secure Checkout</h1>
+      <p style="font-size: 13px; color: var(--text-muted);">Enter shipping details and choose your demo payment method</p>
+    </div>
+
+    <!-- Success Confirmation State (Hidden by default) -->
+    <div id="orderSuccessBox" style="display:none;" class="empty-state">
+      <div class="empty-icon" style="color: var(--success);">🎉</div>
+      <h2 class="empty-title" style="color: var(--success); font-size: 26px;">Order Placed Successfully!</h2>
+      <p class="empty-desc" id="orderSuccessDesc">Your order has been recorded in the database. Stock has been adjusted and cart cleared.</p>
+      <div style="display: flex; gap: 14px; justify-content: center; margin-top: 20px;">
+        <a href="orders.html" class="btn-block-primary" style="display:inline-block; width:auto; padding: 12px 28px;">View in Order History</a>
+        <a href="products.html" class="btn-accent" style="display:inline-flex; align-items: center;">Continue Shopping</a>
+      </div>
+    </div>
+
+    <!-- Active Checkout Form Layout -->
+    <div id="checkoutFormLayout" class="cart-layout">
+      <!-- Shipping & Payment Details -->
+      <div class="cart-items-card">
+        <form id="checkoutForm" onsubmit="handlePlaceOrder(event)">
+          <!-- 1. Delivery Address -->
+          <div style="border-bottom: 1px solid var(--border-light); padding-bottom: 20px; margin-bottom: 20px;">
+            <h3 style="font-size: 16px; font-weight: 700; margin-bottom: 16px; display: flex; align-items: center; gap: 8px;">
+              <span>📍</span> 1. Delivery Address
+            </h3>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
+              <div class="form-group">
+                <label class="form-label" for="shipName">Full Name</label>
+                <input type="text" id="shipName" class="form-input" placeholder="e.g. Rahul Sharma" required />
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="shipPhone">10-Digit Mobile Number</label>
+                <input type="tel" id="shipPhone" class="form-input" placeholder="e.g. 9876543210" pattern="[6-9][0-9]{9}" required />
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="shipAddress">Complete Street Address / Apartment</label>
+              <textarea id="shipAddress" class="form-textarea" rows="2" placeholder="House/Flat No., Apartment Name, Street" required></textarea>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px;">
+              <div class="form-group">
+                <label class="form-label" for="shipCity">City</label>
+                <input type="text" id="shipCity" class="form-input" placeholder="e.g. Bengaluru" required />
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="shipState">State</label>
+                <input type="text" id="shipState" class="form-input" placeholder="e.g. Karnataka" required />
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="shipPincode">6-Digit Pincode</label>
+                <input type="text" id="shipPincode" class="form-input" placeholder="e.g. 560001" pattern="[0-9]{6}" required />
+              </div>
+            </div>
+          </div>
+
+          <!-- 2. Payment Options -->
+          <div>
+            <h3 style="font-size: 16px; font-weight: 700; margin-bottom: 16px; display: flex; align-items: center; gap: 8px;">
+              <span>💳</span> 2. Demo Payment Options
+            </h3>
+
+            <div style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px;">
+              <label class="filter-option" style="background: #f8fafc; padding: 12px; border-radius: 6px; border: 1px solid var(--border);">
+                <input type="radio" name="paymentMethod" value="Cash on Delivery" checked onchange="togglePaymentInputs()" />
+                <div>
+                  <strong>Cash on Delivery (COD)</strong>
+                  <div style="font-size: 12px; color: var(--text-muted);">Pay in cash or UPI at the doorstep during delivery.</div>
+                </div>
+              </label>
+
+              <label class="filter-option" style="background: #f8fafc; padding: 12px; border-radius: 6px; border: 1px solid var(--border);">
+                <input type="radio" name="paymentMethod" value="Mock UPI" onchange="togglePaymentInputs()" />
+                <div>
+                  <strong>Mock UPI (GooglePay / PhonePe / Paytm)</strong>
+                  <div style="font-size: 12px; color: var(--text-muted);">Instant simulated verification via Virtual Payment Address.</div>
+                </div>
+              </label>
+
+              <label class="filter-option" style="background: #f8fafc; padding: 12px; border-radius: 6px; border: 1px solid var(--border);">
+                <input type="radio" name="paymentMethod" value="Mock Card Payment" onchange="togglePaymentInputs()" />
+                <div>
+                  <strong>Mock Credit / Debit Card</strong>
+                  <div style="font-size: 12px; color: var(--text-muted);">Simulated Visa, Mastercard, RuPay processing.</div>
+                </div>
+              </label>
+            </div>
+
+            <!-- Conditional UPI Mock Box -->
+            <div id="mockUpiFields" style="display:none; background: #e0f2fe; padding: 14px; border-radius: 6px; margin-bottom: 16px;">
+              <label class="form-label" style="color:#0369a1;">Enter Demo UPI ID</label>
+              <input type="text" id="upiIdInput" class="form-input" placeholder="e.g. username@okhdfcbank" value="student@okaxis" />
+              <small style="font-size: 11px; color: #0284c7;">Demo simulation: Any UPI handle will succeed instantly.</small>
+            </div>
+
+            <!-- Conditional Card Mock Box -->
+            <div id="mockCardFields" style="display:none; background: #e0f2fe; padding: 14px; border-radius: 6px; margin-bottom: 16px;">
+              <div class="form-group">
+                <label class="form-label" style="color:#0369a1;">Mock Card Number</label>
+                <input type="text" id="cardNumberInput" class="form-input" placeholder="4111 2222 3333 4444" value="4532 8901 2345 6789" />
+              </div>
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                <div>
+                  <label class="form-label" style="color:#0369a1;">Expiry Date</label>
+                  <input type="text" class="form-input" placeholder="MM/YY" value="12/28" />
+                </div>
+                <div>
+                  <label class="form-label" style="color:#0369a1;">CVV</label>
+                  <input type="password" class="form-input" placeholder="123" value="888" maxlength="3" />
+                </div>
+              </div>
+            </div>
+
+            <button type="submit" id="placeOrderBtn" class="btn-block-primary" style="padding: 14px; font-size: 16px;">
+              Place Order & Pay
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Right Order Summary -->
+      <div class="cart-summary-card" id="checkoutOrderSummary">
+        <h3 style="font-size: 16px; font-weight: 700; margin-bottom: 16px; border-bottom: 1px solid var(--border-light); padding-bottom: 12px;">Order Summary</h3>
+        <div id="checkoutSummaryItems" style="margin-bottom: 16px; max-height: 240px; overflow-y: auto;">
+          <p>Loading items...</p>
+        </div>
+        <div id="checkoutTotalsArea"></div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-bottom">
+      <div>© 2026 JeevaMart. All rights reserved. B.Tech IT Engineering Major Project.</div>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+  <script>
+    let activeCart = null;
+
+    async function loadCheckoutData() {
+      if (!Auth.isLoggedIn()) {
+        showToast('Please login to checkout', 'warning');
+        setTimeout(() => window.location.href = 'login.html', 800);
+        return;
+      }
+
+      // Pre-fill user profile info if available
+      const user = Auth.getUser();
+      if (user) {
+        document.getElementById('shipName').value = user.name || '';
+      }
+
+      try {
+        const res = await apiRequest('/cart');
+        activeCart = res.data;
+
+        if (!activeCart || !activeCart.items || activeCart.items.length === 0) {
+          document.getElementById('checkoutFormLayout').innerHTML = `
+            <div class="empty-state" style="grid-column: 1/-1;">
+              <div class="empty-icon">🛒</div>
+              <h3 class="empty-title">Your cart is empty!</h3>
+              <p class="empty-desc">Add items to your cart before proceeding to checkout.</p>
+              <a href="products.html" class="btn-accent" style="display:inline-flex;">Browse Products</a>
+            </div>
+          `;
+          return;
+        }
+
+        // Render summary items
+        const itemsList = document.getElementById('checkoutSummaryItems');
+        itemsList.innerHTML = activeCart.items.map(it => `
+          <div style="display: flex; gap: 10px; margin-bottom: 10px; align-items: center;">
+            <img src="${it.product.imageUrl}" style="width: 44px; height: 44px; border-radius: 4px; object-fit: cover;" />
+            <div style="flex:1;">
+              <div style="font-size: 13px; font-weight: 600; line-height: 1.2;">${it.product.name}</div>
+              <div style="font-size: 11px; color: var(--text-muted);">Qty: ${it.quantity} × ${formatCurrency(it.product.priceCents)}</div>
+            </div>
+            <div style="font-size: 13px; font-weight: 700;">${formatCurrency(it.subtotalCents)}</div>
+          </div>
+        `).join('');
+
+        // Render Totals
+        const totalsArea = document.getElementById('checkoutTotalsArea');
+        totalsArea.innerHTML = `
+          <div class="summary-row">
+            <span>Subtotal</span>
+            <span>${formatCurrency(activeCart.subtotalCents)}</span>
+          </div>
+          <div class="summary-row">
+            <span>Discount</span>
+            <span style="color: var(--success); font-weight: 600;">-${formatCurrency(activeCart.discountCents)}</span>
+          </div>
+          <div class="summary-row">
+            <span>Delivery Fee</span>
+            <span>${activeCart.deliveryCents === 0 ? '<strong style="color: var(--success);">FREE</strong>' : formatCurrency(activeCart.deliveryCents)}</span>
+          </div>
+          <div class="summary-row total-row">
+            <span>Amount Payable</span>
+            <span style="color: var(--primary);">${formatCurrency(activeCart.grandTotalCents)}</span>
+          </div>
+        `;
+      } catch (err) {
+        showToast(err.message || 'Error loading cart', 'error');
+      }
+    }
+
+    function togglePaymentInputs() {
+      const method = document.querySelector('input[name="paymentMethod"]:checked').value;
+      document.getElementById('mockUpiFields').style.display = method === 'Mock UPI' ? 'block' : 'none';
+      document.getElementById('mockCardFields').style.display = method === 'Mock Card Payment' ? 'block' : 'none';
+    }
+
+    async function handlePlaceOrder(e) {
+      e.preventDefault();
+      const btn = document.getElementById('placeOrderBtn');
+      btn.disabled = true;
+      btn.textContent = 'Processing Transaction in PostgreSQL...';
+
+      const shippingName = document.getElementById('shipName').value.trim();
+      const shippingPhone = document.getElementById('shipPhone').value.trim();
+      const shippingAddress = document.getElementById('shipAddress').value.trim();
+      const shippingCity = document.getElementById('shipCity').value.trim();
+      const shippingState = document.getElementById('shipState').value.trim();
+      const shippingPincode = document.getElementById('shipPincode').value.trim();
+      const paymentMethod = document.querySelector('input[name="paymentMethod"]:checked').value;
+
+      try {
+        const res = await apiRequest('/orders', {
+          method: 'POST',
+          body: JSON.stringify({
+            shippingName,
+            shippingPhone,
+            shippingAddress,
+            shippingCity,
+            shippingState,
+            shippingPincode,
+            paymentMethod
+          })
+        });
+
+        if (res.success && res.data) {
+          document.getElementById('checkoutFormLayout').style.display = 'none';
+          const successBox = document.getElementById('orderSuccessBox');
+          successBox.style.display = 'block';
+          document.getElementById('orderSuccessDesc').innerHTML = `
+            Your order <strong>#JM-${res.data.id}</strong> for <strong>${formatCurrency(res.data.totalAmountCents)}</strong> has been confirmed!<br>
+            Payment Mode: <strong>${res.data.paymentMethod}</strong> • Status: <strong>${res.data.status}</strong>.<br>
+            Product stock has been atomically updated in the database.
+          `;
+          updateCartCountBadge();
+          showToast('Order Placed Successfully!', 'success');
+        }
+      } catch (err) {
+        showToast(err.message || 'Failed to place order.', 'error');
+        btn.disabled = false;
+        btn.textContent = 'Place Order & Pay';
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      loadCheckoutData();
+    });
+  </script>
+</body>
+</html>

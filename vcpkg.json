@@ -1,0 +1,33 @@
+{
+  "name": "jeevamart",
+  "version-string": "1.0.0",
+  "description": "JeevaMart Full-Stack E-Commerce Marketplace - B.Tech IT Major Project",
+  "homepage": "https://github.com/jeevamart/jeevamart",
+  "license": "MIT",
+  "dependencies": [
+    {
+      "name": "drogon",
+      "version>=": "1.9.0"
+    },
+    {
+      "name": "libpqxx",
+      "version>=": "7.7.0"
+    },
+    {
+      "name": "libsodium",
+      "version>=": "1.0.18"
+    },
+    {
+      "name": "jwt-cpp",
+      "version>=": "0.7.0"
+    },
+    {
+      "name": "nlohmann-json",
+      "version>=": "3.11.0"
+    },
+    {
+      "name": "gtest",
+      "version>=": "1.14.0"
+    }
+  ]
+}

@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Create Account | JeevaMart — Smart Shopping. Simple. Secure.</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- Demo System Top Banner -->
+  <div class="demo-banner">
+    <div class="demo-banner-left">
+      <span class="demo-banner-badge">B.Tech IT Project</span>
+      <span>JeevaMart Full-Stack E-Commerce</span>
+    </div>
+    <div class="demo-banner-links">
+      <a href="login.html" class="demo-chip">Back to Login</a>
+      <a href="index.html" class="demo-chip">Browse Store</a>
+    </div>
+  </div>
+
+  <!-- Primary Navigation -->
+  <header class="navbar">
+    <div class="nav-container">
+      <a href="index.html" class="nav-brand">
+        JeevaMart<span class="brand-accent">.</span>
+      </a>
+      <div class="nav-actions">
+        <a href="login.html" class="nav-btn nav-btn-primary">Sign In</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Registration Container -->
+  <main class="auth-wrapper">
+    <div class="auth-card">
+      <div class="auth-header">
+        <div class="auth-logo">
+          <span>JeevaMart<span style="color: var(--primary);">.</span></span>
+        </div>
+        <h1 class="auth-title">Create an Account</h1>
+        <p class="auth-subtitle">Join thousands of smart shoppers and verified sellers</p>
+      </div>
+
+      <form id="registerForm" onsubmit="handleRegisterSubmit(event)">
+        <div class="form-group">
+          <label class="form-label" for="regName">Full Name</label>
+          <input
+            type="text"
+            id="regName"
+            class="form-input"
+            placeholder="e.g. Ramesh Kumar"
+            required
+          />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="regEmail">Email Address</label>
+          <input
+            type="email"
+            id="regEmail"
+            class="form-input"
+            placeholder="e.g. ramesh@example.com"
+            required
+          />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="regRole">Select Account Role</label>
+          <select id="regRole" class="form-select" required>
+            <option value="BUYER">Buyer (Shop products, track orders, review)</option>
+            <option value="SELLER">Seller (List products, manage inventory & sales)</option>
+          </select>
+          <small style="font-size: 11px; color: var(--text-muted); display:block; margin-top:4px;">
+            Note: System Administrator accounts cannot be created publicly.
+          </small>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="regPassword">Password</label>
+          <input
+            type="password"
+            id="regPassword"
+            class="form-input"
+            placeholder="Minimum 6 characters"
+            minlength="6"
+            required
+          />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="regConfirmPassword">Confirm Password</label>
+          <input
+            type="password"
+            id="regConfirmPassword"
+            class="form-input"
+            placeholder="Re-type your password"
+            minlength="6"
+            required
+          />
+        </div>
+
+        <button type="submit" id="regSubmitBtn" class="btn-block-primary">
+          Register Account
+        </button>
+      </form>
+
+      <div class="auth-footer">
+        Already have a JeevaMart account? <a href="login.html">Sign In here</a>
+      </div>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-bottom">
+      <div>© 2026 JeevaMart Marketplace. Project developed for College B.Tech IT Evaluation.</div>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+  <script>
+    async function handleRegisterSubmit(e) {
+      e.preventDefault();
+      const name = document.getElementById('regName').value.trim();
+      const email = document.getElementById('regEmail').value.trim();
+      const role = document.getElementById('regRole').value;
+      const pass = document.getElementById('regPassword').value;
+      const confirmPass = document.getElementById('regConfirmPassword').value;
+
+      if (pass !== confirmPass) {
+        showToast('Passwords do not match.', 'error');
+        return;
+      }
+
+      const btn = document.getElementById('regSubmitBtn');
+      btn.disabled = true;
+      btn.textContent = 'Registering Account...';
+
+      try {
+        await register(name, email, pass, confirmPass, role);
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Register Account';
+      }
+    }
+  </script>
+</body>
+</html>

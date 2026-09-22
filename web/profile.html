@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>User Profile | JeevaMart — Smart Shopping. Simple. Secure.</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- Demo Top Bar -->
+  <div class="demo-banner">
+    <div class="demo-banner-left">
+      <span class="demo-banner-badge">B.Tech IT Project</span>
+      <span>JeevaMart Account & Profile Settings</span>
+    </div>
+    <div class="demo-banner-links">
+      <a href="index.html" class="demo-chip">Storefront</a>
+      <a href="orders.html" class="demo-chip">My Orders</a>
+    </div>
+  </div>
+
+  <!-- Primary Header -->
+  <header class="navbar">
+    <div class="nav-container">
+      <a href="index.html" class="nav-brand">
+        JeevaMart<span class="brand-accent">.</span>
+      </a>
+      <div class="nav-actions">
+        <a href="products.html" class="nav-btn">Shop</a>
+        <a href="orders.html" class="nav-btn">Orders</a>
+        <a href="cart.html" class="nav-btn">Cart</a>
+        <div id="navAuthArea"></div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Profile Content Area -->
+  <main class="main-content">
+    <div style="max-width: 650px; margin: 0 auto;">
+      <div style="margin-bottom: 24px;">
+        <h1 style="font-size: 24px; font-weight: 800;">My Account Profile</h1>
+        <p style="font-size: 13px; color: var(--text-muted);">Manage personal information and security credentials</p>
+      </div>
+
+      <div class="cart-items-card" style="margin-bottom: 24px;">
+        <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 20px; border-bottom: 1px solid var(--border-light); padding-bottom: 16px;">
+          <div style="width: 64px; height: 64px; border-radius: 50%; background: var(--primary); color: white; display: flex; align-items: center; justify-content: center; font-size: 24px; font-weight: 800;">
+            <span id="profileInitial">JM</span>
+          </div>
+          <div>
+            <h2 id="profileDisplayName" style="font-size: 18px; font-weight: 700;">User Name</h2>
+            <div id="profileEmail" style="font-size: 13px; color: var(--text-muted);">email@example.com</div>
+            <div style="margin-top: 4px;">
+              <span id="profileRoleBadge" class="role-badge" style="background: #e0f2fe; color: #0284c7; font-size: 11px; padding: 3px 10px;">BUYER</span>
+            </div>
+          </div>
+        </div>
+
+        <form id="profileUpdateForm" onsubmit="handleUpdateProfile(event)">
+          <div class="form-group">
+            <label class="form-label" for="profNameInput">Full Name</label>
+            <input type="text" id="profNameInput" class="form-input" required />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="profEmailInput">Email Address (Read-only)</label>
+            <input type="email" id="profEmailInput" class="form-input" disabled style="background:#f1f5f9; cursor: not-allowed;" />
+          </div>
+
+          <button type="submit" class="btn-card-fill" style="padding: 10px 24px;">Update Name</button>
+        </form>
+      </div>
+
+      <!-- Change Password Box -->
+      <div class="cart-items-card">
+        <h3 style="font-size: 16px; font-weight: 700; margin-bottom: 16px; border-bottom: 1px solid var(--border-light); padding-bottom: 12px;">Security & Password</h3>
+        <form id="passwordForm" onsubmit="handleChangePassword(event)">
+          <div class="form-group">
+            <label class="form-label" for="oldPassInput">Current Password</label>
+            <input type="password" id="oldPassInput" class="form-input" placeholder="••••••••" required />
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="newPassInput">New Password</label>
+            <input type="password" id="newPassInput" class="form-input" placeholder="Minimum 6 characters" minlength="6" required />
+          </div>
+          <button type="submit" class="btn-card-outline" style="padding: 10px 24px;">Change Password</button>
+        </form>
+
+        <div style="margin-top: 24px; border-top: 1px solid var(--border-light); padding-top: 16px; display: flex; justify-content: space-between; align-items: center;">
+          <span style="font-size: 13px; color: var(--text-muted);">Ready to end this session?</span>
+          <button onclick="logout()" style="background: #fee2e2; color: #dc2626; border: 1px solid #fecaca; padding: 8px 18px; border-radius: 4px; font-weight: 700; cursor: pointer;">
+            Log Out
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-bottom">
+      <div>© 2026 JeevaMart. All rights reserved. B.Tech IT Major Project.</div>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+  <script>
+    function loadProfile() {
+      const user = Auth.getUser();
+      if (!user) {
+        window.location.href = 'login.html';
+        return;
+      }
+
+      document.getElementById('profileDisplayName').textContent = user.name;
+      document.getElementById('profileEmail').textContent = user.email;
+      document.getElementById('profileInitial').textContent = user.name.slice(0, 2).toUpperCase();
+      document.getElementById('profNameInput').value = user.name;
+      document.getElementById('profEmailInput').value = user.email;
+
+      const badge = document.getElementById('profileRoleBadge');
+      badge.textContent = user.role;
+      if (user.role === 'ADMIN') {
+        badge.style.background = '#fee2e2';
+        badge.style.color = '#dc2626';
+      } else if (user.role === 'SELLER') {
+        badge.style.background = '#fef3c7';
+        badge.style.color = '#d97706';
+      }
+    }
+
+    async function handleUpdateProfile(e) {
+      e.preventDefault();
+      const newName = document.getElementById('profNameInput').value.trim();
+      if (!newName) return;
+      
+      const user = Auth.getUser();
+      user.name = newName;
+      localStorage.setItem('jeevamart_user', JSON.stringify(user));
+      showToast('Profile name updated successfully!', 'success');
+      loadProfile();
+      syncNavigationUI();
+    }
+
+    function handleChangePassword(e) {
+      e.preventDefault();
+      document.getElementById('oldPassInput').value = '';
+      document.getElementById('newPassInput').value = '';
+      showToast('Password updated successfully (Demo simulation).', 'success');
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      loadProfile();
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,35 @@
+{
+  "listeners": [
+    {
+      "address": "0.0.0.0",
+      "port": 8080,
+      "https": false
+    }
+  ],
+  "db_clients": [
+    {
+      "name": "default",
+      "rdbms": "postgresql",
+      "host": "127.0.0.1",
+      "port": 5432,
+      "dbname": "jeevamart_db",
+      "user": "postgres",
+      "passwd": "postgres_password_here",
+      "is_fast": false,
+      "connection_number": 10
+    }
+  ],
+  "app": {
+    "threads_num": 4,
+    "enable_session": true,
+    "session_timeout": 86400,
+    "document_root": "./web",
+    "home_page": "login.html",
+    "upload_path": "./uploads",
+    "file_types": ["html", "js", "css", "xml", "json", "png", "jpg", "jpeg", "gif", "svg", "ico"]
+  },
+  "custom_config": {
+    "jwt_secret": "jeevamart_super_secret_jwt_key_2026_btech_project",
+    "jwt_expiry_seconds": 86400
+  }
+}

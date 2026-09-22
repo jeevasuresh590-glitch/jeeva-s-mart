@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Seller Hub | JeevaMart — Smart Shopping. Simple. Secure.</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- Demo Top Bar -->
+  <div class="demo-banner">
+    <div class="demo-banner-left">
+      <span class="demo-banner-badge" style="background:#f59e0b;">Seller Portal</span>
+      <span>JeevaMart Inventory, Catalog & Revenue Management</span>
+    </div>
+    <div class="demo-banner-links">
+      <a href="index.html" class="demo-chip">Buyer Storefront</a>
+      <a href="admin.html" class="demo-chip">Admin Portal</a>
+    </div>
+  </div>
+
+  <!-- Primary Header -->
+  <header class="navbar" style="background: var(--dark-main);">
+    <div class="nav-container">
+      <a href="seller.html" class="nav-brand" style="color: white;">
+        JeevaMart<span class="brand-accent">.</span>
+        <span style="font-size: 13px; font-weight: 500; color: #a1a1aa; margin-left: 10px; border-left: 1px solid #3f3f46; padding-left: 10px;">Seller Hub</span>
+      </a>
+      <div class="nav-actions">
+        <a href="index.html" class="nav-btn" style="color: white; border-color: rgba(255,255,255,0.2);">Storefront</a>
+        <div id="navAuthArea"></div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Seller Dashboard Main -->
+  <main class="main-content">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap; gap: 12px;">
+      <div>
+        <h1 style="font-size: 24px; font-weight: 800;">Seller Dashboard</h1>
+        <p style="font-size: 13px; color: var(--text-muted);">Manage your product listings, view sales volume, and check incoming orders</p>
+      </div>
+      <button class="btn-block-primary" style="width: auto; padding: 10px 20px;" onclick="openAddProductModal()">
+        + Add New Product
+      </button>
+    </div>
+
+    <!-- Metric Cards Grid -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 32px;">
+      <div style="background: white; border-radius: 8px; padding: 20px; box-shadow: var(--shadow-sm); border: 1px solid var(--border-light);">
+        <div style="font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Total Listed Products</div>
+        <div id="metricTotalProducts" style="font-size: 28px; font-weight: 800; color: var(--primary); margin-top: 6px;">--</div>
+      </div>
+      <div style="background: white; border-radius: 8px; padding: 20px; box-shadow: var(--shadow-sm); border: 1px solid var(--border-light);">
+        <div style="font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Active Inventory Units</div>
+        <div id="metricTotalStock" style="font-size: 28px; font-weight: 800; color: var(--success); margin-top: 6px;">--</div>
+      </div>
+      <div style="background: white; border-radius: 8px; padding: 20px; box-shadow: var(--shadow-sm); border: 1px solid var(--border-light);">
+        <div style="font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Estimated Inventory Value</div>
+        <div id="metricInventoryValue" style="font-size: 28px; font-weight: 800; color: var(--warning); margin-top: 6px;">--</div>
+      </div>
+    </div>
+
+    <!-- Product Catalog Table Section -->
+    <div style="margin-bottom: 32px;">
+      <div class="section-header">
+        <h3 class="section-title">My Product Listings</h3>
+      </div>
+      <div class="data-table-container">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Image</th>
+              <th>Product Name</th>
+              <th>Category</th>
+              <th>Price</th>
+              <th>Discount</th>
+              <th>Stock</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="sellerProductTableBody">
+            <tr>
+              <td colspan="8" style="text-align: center; padding: 30px;">Loading catalog from PostgreSQL...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+
+  <!-- Add / Edit Product Modal -->
+  <div id="productFormModal" class="modal-overlay">
+    <div class="modal-content" style="max-width: 600px;">
+      <button class="modal-close-btn" onclick="closeProductFormModal()">✕</button>
+      <h2 id="productModalTitle" style="font-size: 20px; font-weight: 700; margin-bottom: 20px;">Add New Product</h2>
+      
+      <form id="productForm" onsubmit="handleProductFormSubmit(event)">
+        <input type="hidden" id="prodFormId" value="" />
+
+        <div class="form-group">
+          <label class="form-label" for="prodFormName">Product Name *</label>
+          <input type="text" id="prodFormName" class="form-input" placeholder="e.g. Ultra Slim Mechanical Keyboard" required />
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+          <div class="form-group">
+            <label class="form-label" for="prodFormCategory">Category *</label>
+            <select id="prodFormCategory" class="form-select" required>
+              <option value="Electronics">Electronics</option>
+              <option value="Mobiles">Mobiles</option>
+              <option value="Laptops">Laptops</option>
+              <option value="Fashion">Fashion</option>
+              <option value="Home">Home & Kitchen</option>
+              <option value="Beauty">Beauty</option>
+              <option value="Grocery">Grocery</option>
+              <option value="Accessories">Accessories</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="prodFormStock">Stock Quantity *</label>
+            <input type="number" id="prodFormStock" class="form-input" min="0" placeholder="e.g. 50" required />
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+          <div class="form-group">
+            <label class="form-label" for="prodFormPrice">Selling Price (in ₹) *</label>
+            <input type="number" id="prodFormPrice" class="form-input" min="1" step="0.01" placeholder="e.g. 1499" required />
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="prodFormOriginalPrice">Original MRP Price (in ₹)</label>
+            <input type="number" id="prodFormOriginalPrice" class="form-input" min="1" step="0.01" placeholder="e.g. 2499" />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="prodFormImage">Image URL *</label>
+          <input type="url" id="prodFormImage" class="form-input" placeholder="https://images.unsplash.com/..." required />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="prodFormDesc">Product Description *</label>
+          <textarea id="prodFormDesc" class="form-textarea" rows="3" placeholder="Provide detailed specifications, features, and warranty details" required></textarea>
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 24px;">
+          <button type="button" class="btn-card-outline" onclick="closeProductFormModal()">Cancel</button>
+          <button type="submit" id="saveProdBtn" class="btn-card-fill" style="padding: 10px 24px;">Save Product</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <footer class="footer">
+    <div class="footer-bottom">
+      <div>© 2026 JeevaMart Marketplace. Seller Portal. B.Tech IT Major Project.</div>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+  <script>
+    let sellerProducts = [];
+
+    async function checkSellerAuth() {
+      const user = Auth.getUser();
+      if (!user || (user.role !== 'SELLER' && user.role !== 'ADMIN')) {
+        showToast('Please login with a Seller or Admin account to access Seller Hub.', 'warning');
+        setTimeout(() => window.location.href = 'login.html', 1000);
+        return false;
+      }
+      return true;
+    }
+
+    async function loadSellerDashboard() {
+      const isAuth = await checkSellerAuth();
+      if (!isAuth) return;
+
+      try {
+        const res = await apiRequest('/products');
+        if (res.success && res.data) {
+          sellerProducts = res.data;
+          
+          // Metrics
+          document.getElementById('metricTotalProducts').textContent = sellerProducts.length;
+          const totalStock = sellerProducts.reduce((sum, p) => sum + (p.stockQty || 0), 0);
+          document.getElementById('metricTotalStock').textContent = totalStock;
+
+          const totalValCents = sellerProducts.reduce((sum, p) => sum + (p.priceCents * p.stockQty), 0);
+          document.getElementById('metricInventoryValue').textContent = formatCurrency(totalValCents);
+
+          // Table Body
+          const tbody = document.getElementById('sellerProductTableBody');
+          if (sellerProducts.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="8" style="text-align: center; padding: 20px;">No products in inventory. Click "Add New Product" to list one.</td></tr>`;
+            return;
+          }
+
+          tbody.innerHTML = sellerProducts.map(p => `
+            <tr>
+              <td>
+                <img src="${p.imageUrl}" style="width: 44px; height: 44px; object-fit: cover; border-radius: 4px;" />
+              </td>
+              <td>
+                <strong>${p.name}</strong>
+                <div style="font-size: 11px; color: var(--text-muted);">ID: #${p.id}</div>
+              </td>
+              <td><span style="background:#f1f5f9; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600;">${p.category}</span></td>
+              <td><strong>${formatCurrency(p.priceCents)}</strong></td>
+              <td>${p.discountPercent > 0 ? `<span style="color: var(--success); font-weight: 700;">${p.discountPercent}% OFF</span>` : '—'}</td>
+              <td>
+                <span style="font-weight: 700; color: ${p.stockQty > 5 ? 'var(--text-main)' : 'var(--danger)'};">
+                  ${p.stockQty}
+                </span>
+              </td>
+              <td>
+                <span class="stock-tag ${p.stockQty > 0 ? 'in-stock' : 'out-stock'}" style="position: static;">
+                  ${p.stockQty > 0 ? 'Active' : 'Out of Stock'}
+                </span>
+              </td>
+              <td>
+                <button onclick="openEditProductModal(${p.id})" style="background: none; border: 1px solid #cbd5e1; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 12px; margin-right: 4px;">
+                  ✏️ Edit
+                </button>
+                <button onclick="deleteProductById(${p.id})" style="background: none; border: 1px solid #fecaca; color: #dc2626; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 12px;">
+                  🗑️ Delete
+                </button>
+              </td>
+            </tr>
+          `).join('');
+        }
+      } catch (err) {
+        showToast(err.message || 'Error loading seller data', 'error');
+      }
+    }
+
+    function openAddProductModal() {
+      document.getElementById('prodFormId').value = '';
+      document.getElementById('productModalTitle').textContent = 'Add New Product to Catalog';
+      document.getElementById('productForm').reset();
+      document.getElementById('productFormModal').classList.add('active');
+    }
+
+    function openEditProductModal(id) {
+      const p = sellerProducts.find(x => x.id === id);
+      if (!p) return;
+
+      document.getElementById('prodFormId').value = p.id;
+      document.getElementById('productModalTitle').textContent = `Edit Product #${p.id}`;
+      document.getElementById('prodFormName').value = p.name;
+      document.getElementById('prodFormCategory').value = p.category;
+      document.getElementById('prodFormStock').value = p.stockQty;
+      document.getElementById('prodFormPrice').value = (p.priceCents / 100);
+      document.getElementById('prodFormOriginalPrice').value = (p.originalPriceCents / 100);
+      document.getElementById('prodFormImage').value = p.imageUrl;
+      document.getElementById('prodFormDesc').value = p.description;
+
+      document.getElementById('productFormModal').classList.add('active');
+    }
+
+    function closeProductFormModal() {
+      document.getElementById('productFormModal').classList.remove('active');
+    }
+
+    async function handleProductFormSubmit(e) {
+      e.preventDefault();
+      const id = document.getElementById('prodFormId').value;
+      const name = document.getElementById('prodFormName').value.trim();
+      const category = document.getElementById('prodFormCategory').value;
+      const stockQty = Number(document.getElementById('prodFormStock').value);
+      const priceRupees = Number(document.getElementById('prodFormPrice').value);
+      const originalPriceRupees = Number(document.getElementById('prodFormOriginalPrice').value) || priceRupees;
+      const imageUrl = document.getElementById('prodFormImage').value.trim();
+      const description = document.getElementById('prodFormDesc').value.trim();
+
+      const priceCents = Math.round(priceRupees * 100);
+      const originalPriceCents = Math.round(originalPriceRupees * 100);
+      const discountPercent = originalPriceCents > priceCents ? Math.round(((originalPriceCents - priceCents) / originalPriceCents) * 100) : 0;
+
+      const payload = {
+        name,
+        category,
+        description,
+        priceCents,
+        originalPriceCents,
+        discountPercent,
+        stockQty,
+        imageUrl
+      };
+
+      try {
+        if (id) {
+          // Update
+          await apiRequest(`/products/${id}`, {
+            method: 'PUT',
+            body: JSON.stringify(payload)
+          });
+          showToast('Product updated successfully!', 'success');
+        } else {
+          // Create
+          await apiRequest('/products', {
+            method: 'POST',
+            body: JSON.stringify(payload)
+          });
+          showToast('New product added to store!', 'success');
+        }
+        closeProductFormModal();
+        loadSellerDashboard();
+      } catch (err) {
+        showToast(err.message || 'Failed to save product', 'error');
+      }
+    }
+
+    async function deleteProductById(id) {
+      if (!confirm(`Are you sure you want to permanently delete product #${id}? This action cannot be undone.`)) return;
+
+      try {
+        await apiRequest(`/products/${id}`, { method: 'DELETE' });
+        showToast('Product deleted.', 'info');
+        loadSellerDashboard();
+      } catch (err) {
+        showToast(err.message || 'Failed to delete product', 'error');
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      loadSellerDashboard();
+    });
+  </script>
+</body>
+</html>
